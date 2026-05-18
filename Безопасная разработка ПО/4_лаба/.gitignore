@@ -1,0 +1,20 @@
+# Coverage
+*.gcda
+*.gcno
+coverage.info
+coverage_report/
+
+# VS Code
+.vscode/
+
+# CLion
+.idea/
+
+# Temporary files
+*.tmp
+*.log
+venv/
+__pycache__/
+*.pyc
+.coverage
+htmlcov/

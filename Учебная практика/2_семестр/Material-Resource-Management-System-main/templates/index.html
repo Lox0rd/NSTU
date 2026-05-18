@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Загрузка файла</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<main>
+    <body>
+        <div class="container">
+            <h1>Загрузка файла для обработки</h1>
+            <form class="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
+                <input type="submit" value="Загрузить и обработать">
+            </form>
+        </div>
+    </body>
+</main>
+</html>

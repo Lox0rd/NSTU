@@ -1,0 +1,103 @@
+# Часть 1. Загрузка и предобработка данных
+
+# Загружаем необходимые пакеты
+install.packages("ggplot2")
+install.packages("dplyr")
+
+library(ggplot2)
+library(dplyr)
+
+# Загрузка данных из файла train.csv
+titanic_data <- read.csv("train.csv")
+
+# Проверка структуры данных: первые 6 строк
+head(titanic_data, 6)
+
+# Общая информация о датасете
+str(titanic_data)
+summary(titanic_data)
+
+# Анализ пропусков: определение столбцов с пропущенными значениями и их количества
+missing_values <- colSums(is.na(titanic_data))
+print(missing_values)
+
+# Обработка пропусков
+# Замена пропущенных значений в столбце Age на медианное значение возраста
+median_age <- median(titanic_data$Age, na.rm = TRUE)
+titanic_data$Age[is.na(titanic_data$Age)] <- median_age
+
+# Удаление строк с пропусками в столбце Embarked
+titanic_data <- titanic_data[!is.na(titanic_data$Embarked), ]
+
+# Приведение типов
+# Преобразование столбцов Survived, Pclass, Sex в факторные переменные
+titanic_data$Survived <- factor(titanic_data$Survived,
+                                labels = c("Погиб", "Выжил"))
+titanic_data$Pclass <- factor(titanic_data$Pclass)
+titanic_data$Sex <- factor(titanic_data$Sex)
+
+# Убедимся, что Age и Fare имеют тип numeric
+titanic_data$Age <- as.numeric(titanic_data$Age)
+titanic_data$Fare <- as.numeric(titanic_data$Fare)
+
+# Создание нового столбца AgeGroup для категоризации возраста
+titanic_data <- titanic_data %>%
+  mutate(AgeGroup = case_when(
+    Age < 18 ~ "Ребёнок",
+    Age >= 18 & Age < 60 ~ "Взрослый",
+    Age >= 60 ~ "Пожилой"
+  ))
+titanic_data$AgeGroup <- factor(titanic_data$AgeGroup,
+                                levels = c("Ребёнок", "Взрослый", "Пожилой"))
+
+# Определение цветовой схемы: красный для погибших, зелёный для выживших
+survival_colors <- c("Погиб" = "red", "Выжил" = "green")
+
+# Часть 2. Построение мозаичной диаграммы (альтернатива без дополнительных пакетов)
+
+# Создаём трёхмерную таблицу сопряжённости: класс × пол × выживаемость
+survival_table <- table(titanic_data$Pclass,
+                        titanic_data$Sex,
+                        titanic_data$Survived)
+
+# Построение мозаичной диаграммы базовыми средствами R
+png("mosaic_titanic.png", width = 800, height = 600, res = 300)
+mosaicplot(survival_table,
+           main = "Мозаичная диаграмма: выживаемость по классу каюты и полу",
+           color = c("red", "green"),
+           xlab = "Класс каюты × Пол",
+           ylab = "Выживаемость",
+           cex.axis = 0.8)
+dev.off()
+
+# Часть 3. Построение пузырьковой диаграммы (остаётся без изменений)
+titanic_data$Size <- titanic_data$Age / 10
+
+bubble_plot <- ggplot(titanic_data, aes(x = Age, y = Fare, color = Survived)) +
+  geom_point(aes(size = Size), alpha = 0.6) +
+  scale_color_manual(values = survival_colors) +
+  geom_smooth(method = "loess", se = FALSE, color = "black") +
+  labs(title = "Пузырьковая диаграмма: возраст, плата за проезд и выживаемость",
+       x = "Возраст (лет)",
+       y = "Плата за проезд (USD)") +
+  theme_minimal()
+
+
+print(bubble_plot)
+ggsave("bubble_titanic.png", plot = bubble_plot,
+       width = 8, height = 6, dpi = 300)
+
+# Часть 4. Интерпретация результатов (как в оригинальном коде)
+cat("Краткий отчёт по результатам анализа выживаемости пассажиров «Титаника»:\n\n")
+cat("1. Мозаичная диаграмма показывает, что:\n")
+cat("   - Женщины имели значительно более высокую выживаемость во всех классах.\n")
+cat("   - В первом классе выживаемость была выше, чем в третьем, особенно среди мужчин.\n")
+cat("   - Доля выживших женщин в первом классе была максимальной, а мужчин в третьем классе — минимальной.\n\n")
+cat("2. Пузырьковая диаграмма позволяет отметить:\n")
+cat("   - Кластер пассажиров с низкой платой за проезд и возрастом 20–40 лет — преимущественно погибшие.\n")
+cat("   - Выбросы с высокой платой за проезд (более 500 USD) — все выжили, это пассажиры первого класса.\n")
+cat("   - Общая тенденция: пассажиры с более высокой платой за проезд чаще выживали.\n\n")
+cat("3. Основные выводы о факторах выживаемости:\n")
+cat("   - Пол: женщины имели приоритет при спасении, что резко повышало их шансы на выживание.\n")
+cat("   - Класс каюты: пассажиры первого класса выживали чаще, вероятно, из‑за расположения кают ближе к палубе и приоритета при эвакуации.\n")
+cat("   - Стоимость билета: высокая плата за проезд коррелирует с выживаемостью, что связано с классом каюты и социальным статусом.\n")
