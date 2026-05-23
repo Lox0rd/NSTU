@@ -1,59 +1,63 @@
 from stack import Stack
 
-def print_menu():
-    print("\n=== Интерактивный стек ===")
-    print("1. Добавить элемент (push)")
-    print("2. Удалить элемент (pop)")
-    print("3. Посмотреть верхний элемент (peek)")
-    print("4. Показать размер стека")
-    print("5. Вывести содержимое стека")
-    print("0. Выход")
-    print("Ваш выбор: ", end="")
+def show_help():
+    print("Команды:")
+    print("s.push <value>   - добавить элемент в стек")
+    print("s.pop            - удалить верхний элемент из стека")
+    print("s.peek           - посмотреть верхний элемент стека")
+    print("s.print          - вывести содержимое стека")
+    print("s.size           - показать размер стека")
+    print("help             - показать список команд")
+    print("exit             - выход из программы")
+    print()
 
 def main():
     stack = Stack()
+    print("help для списка команд.")
 
     while True:
-        print_menu()
-        try:
-            choice = int(input())
-        except ValueError:
-            print("Ошибка: введите число от 0 до 6.")
+        print("> ", end="")
+        command = input().strip()
+
+        parts = command.split()
+        if not parts:
             continue
 
-        if choice == 1:
-            try:
-                value = int(input("Введите значение для добавления: "))
+        cmd = parts[0]
+
+        if cmd == "exit":
+            print("Выход из программы.")
+            break
+
+        elif cmd == "help":
+            show_help()
+
+        elif cmd == "s.push":
+            if len(parts) < 2:
+                print("Ошибка: требуется значение")
+            else:
+                value = int(parts[1])
                 stack.push(value)
-                print(f"Элемент {value} добавлен в стек.")
-            except Exception as e:
-                print(f"Ошибка при добавлении: {e}")
 
-        elif choice == 2:
-            try:
-                popped_value = stack.pop()
-                print(f"Удаленный элемент: {popped_value}")
-            except IndexError:
-                print("Ошибка: невозможно удалить элемент - стек пуст!")
+        elif cmd == "s.pop":
+            popped_value = stack.pop()
+            print(f"Удаленный элемент: {popped_value}")
 
-        elif choice == 3:
+        elif cmd == "s.peek":
             try:
                 top_value = stack.peek()
                 print(f"Верхний элемент стека: {top_value}")
             except IndexError:
-                print("Ошибка: стек пуст, нет верхнего элемента!")
-        elif choice == 4:
-            print(f"Размер стека: {stack.size()}")
+                print("Ошибка: стек пуст")
 
-        elif choice == 5:
+        elif cmd == "s.print":
             stack.print_stack()
 
-        elif choice == 0:
-            print("Выход из программы.")
-            break
+        elif cmd == "s.size":
+            print(f"Размер стека: {stack.size()}")
 
         else:
-            print("Неверный выбор! Введите число от 0 до 6.")
+            print(f"Неизвестная команда: '{cmd}'. help для списка команд")
 
 if __name__ == "__main__":
     main()

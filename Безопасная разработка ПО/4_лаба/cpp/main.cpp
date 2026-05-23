@@ -1,152 +1,112 @@
 #include <iostream>
+#include <string>
+#include <sstream>
 #include "stack.h"
 #include "queue.h"
 #include "tree.h"
 
-void printMenu() {
-    std::cout << "\n=== Выберите структуру данных ===\n";
-    std::cout << "1. Стек\n";
-    std::cout << "2. Очередь\n";
-    std::cout << "3. Дерево\n";
-    std::cout << "0. Выход\n";
-    std::cout << "Ваш выбор: ";
-}
-
-void stackMenu(Stack& s) {
-    int choice, value;
-    do {
-        std::cout << "\n--- Стек ---\n";
-        std::cout << "1. Добавить элемент\n";
-        std::cout << "2. Удалить элемент\n";
-        std::cout << "3. Посмотреть верхний элемент\n";
-        std::cout << "4. Вывести стек\n";
-        std::cout << "0. Назад\n";
-        std::cout << "Ваш выбор: ";
-        std::cin >> choice;
-
-        switch (choice) {
-            case 1:
-                std::cout << "Введите значение: ";
-                std::cin >> value;
-                s.push(value);
-                std::cout << "Элемент " << value << " добавлен в стек.\n";
-                break;
-            case 2:
-                s.pop();
-                break;
-            case 3:
-                std::cout << "Верхний элемент: " << s.peek();
-                break;
-            case 4:
-                s.print();
-                break;
-            case 0:
-                break;
-            default:
-                std::cout << "Неверный выбор! Попробуйте снова.\n";
-        }
-    } while (choice != 0);
-}
-
-void queueMenu(Queue& q) {
-    int choice, value;
-    do {
-        std::cout << "\n--- Очередь ---\n";
-        std::cout << "1. Добавить элемент\n";
-        std::cout << "2. Удалить элемент\n";
-        std::cout << "3. Посмотреть первый элемент\n";
-        std::cout << "4. Вывести очередь\n";
-        std::cout << "0. Назад\n";
-        std::cout << "Ваш выбор: ";
-        std::cin >> choice;
-
-        switch (choice) {
-            case 1:
-                std::cout << "Введите значение: ";
-                std::cin >> value;
-                q.push(value);
-                std::cout << "Элемент " << value << " добавлен в очередь.\n";
-                break;
-            case 2:
-                q.pop();
-                break;
-            case 3:
-                q.front();
-                std::cout << "Первый элемент элемент: " << q.front();
-                break;
-            case 4:
-                q.print();
-                break;
-            case 0:
-                break;
-            default:
-                std::cout << "Неверный выбор! Попробуйте снова.\n";
-        }
-    } while (choice != 0);
-}
-
-void treeMenu(Tree& t) {
-    int choice, value;
-    do {
-        std::cout << "\n--- Дерево ---\n";
-        std::cout << "1. Добавить элемент\n";
-        std::cout << "2. Удалить элемент\n";
-        std::cout << "3. Вывести дерево (обход)\n";
-        std::cout << "4. Показать высоту дерева\n";
-        std::cout << "0. Назад\n";
-        std::cout << "Ваш выбор: ";
-        std::cin >> choice;
-
-        switch (choice) {
-            case 1:
-                std::cout << "Введите значение: ";
-                std::cin >> value;
-                t.push(value);
-                std::cout << "Элемент " << value << " добавлен в дерево.\n";
-                break;
-            case 2:
-                t.pop();
-                break;
-            case 3:
-                t.print();
-                break;
-            case 4:
-                std::cout << "Высота дерева: " << t.height() << "\n";
-                break;
-            case 0:
-                break;
-            default:
-                std::cout << "Неверный выбор! Попробуйте снова.\n";
-        }
-    } while (choice != 0);
+void showHelp()
+{
+    std::cout << "s.push <value>   - добавить элемент в стек\n";
+    std::cout << "s.pop            - удалить верхний элемент из стека\n";
+    std::cout << "s.peek           - посмотреть верхний элемент стека\n";
+    std::cout << "s.print          - вывести стек\n";
+    std::cout << "q.push <value>   - добавить элемент в очередь\n";
+    std::cout << "q.pop            - удалить первый элемент из очереди\n";
+    std::cout << "q.front          - посмотреть первый элемент очереди\n";
+    std::cout << "q.print          - вывести очередь\n";
+    std::cout << "t.push <value>   - добавить элемент в дерево\n";
+    std::cout << "t.pop            - удалить элемент из дерева\n";
+    std::cout << "t.print          - вывести дерево (обход)\n";
+    std::cout << "t.height         - показать высоту дерева\n";
+    std::cout << "help             - показать список команд\n";
+    std::cout << "exit             - выход из программы\n\n";   
 }
 
 int main() {
     Stack s;
     Queue q;
     Tree t;
-    int mainChoice;
-    do {
-        printMenu();
-        std::cin >> mainChoice;
+    std::string command;
 
-        switch (mainChoice) {
-            case 1:
-                stackMenu(s);
-                break;
-            case 2:
-                queueMenu(q);
-                break;
-            case 3:
-                treeMenu(t);
-                break;
-            case 0:
-                std::cout << "Выход из программы.\n";
-                break;
-            default:
-                std::cout << "Неверный выбор! Попробуйте снова.\n";
+    std::cout << "help для списка команд.\n";
+
+    while (true) {
+        std::cout << "> ";
+        std::getline(std::cin, command);
+
+        std::istringstream iss(command);
+        std::string cmd;
+        iss >> cmd;
+
+        if (cmd == "exit") {
+            std::cout << "Выход из программы.\n";
+            break;
         }
-    } while (mainChoice != 0);
+        else if (cmd == "help") {
+            showHelp();
+        }
+        else if (cmd == "s.push") {
+            int value;
+            if (iss >> value) {
+                s.push(value);
+                std::cout << "Элемент " << value << " добавлен в стек.\n";
+            }
+            else {
+                std::cout << "Ошибка: требуется значение.\n";
+            }
+        }
+        else if (cmd == "s.pop") {
+            s.pop();
+        }
+        else if (cmd == "s.peek") {
+            std::cout << "Верхний элемент: " << s.peek() << "\n";
+        }
+        else if (cmd == "s.print") {
+            s.print();
+        }
+        else if (cmd == "q.push") {
+            int value;
+            if (iss >> value) {
+                q.push(value);
+                std::cout << "Элемент " << value << " добавлен в очередь.\n";
+            }
+            else {
+                std::cout << "Ошибка: требуется значение.\n";
+            }
+        }
+        else if (cmd == "q.pop") {
+            q.pop();
+        }
+        else if (cmd == "q.front") {
+            std::cout << "Первый элемент: " << q.front() << "\n";
+        }
+        else if (cmd == "q.print") {
+            q.print();
+        }
+        else if (cmd == "t.push") {
+            int value;
+            if (iss >> value) {
+                t.push(value);
+                std::cout << "Элемент " << value << " добавлен в дерево.\n";
+            }
+            else {
+                std::cout << "Ошибка: требуется значение.\n";
+            }
+        }
+        else if (cmd == "t.pop") {
+            t.pop();
+        }
+        else if (cmd == "t.print") {
+            t.print();
+        }
+        else if (cmd == "t.height") {
+            std::cout << "Высота дерева: " << t.height() << "\n";
+        }
+        else if (!cmd.empty()) {
+            std::cout << "Неизвестная команда: '" << cmd << "'. Введите 'help'\n";
+        }
+    }
 
     return 0;
 }

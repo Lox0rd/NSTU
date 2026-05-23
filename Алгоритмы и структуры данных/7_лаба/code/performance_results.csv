@@ -1,0 +1,11 @@
+Algorithm,SearchType,AverageTimeMs
+Array,Existing,0.00250634
+Array,Missing,0.0096485
+List,Existing,0.0303049
+List,Missing,0.12549
+Binary,Existing,0.349053
+Binary,Missing,0.146607
+AVLTree,Existing,5.1446e-05
+AVLTree,Missing,4.52328e-05
+HashTable,Existing,0.000152276
+HashTable,Missing,8.97076e-05

@@ -1,14 +1,29 @@
-#pragma once
-#include <vector>
 #include <iostream>
+#ifndef QUEUE_H
+#define QUEUE_H
 
 class Queue {
 private:
-    std::vector<int> data;
+    struct Node {
+        int value;
+        Node* next;
+        Node* prev;
+
+        Node(int val) : value(val), next(nullptr), prev(nullptr) {}
+    };
+
+    Node* front_node;
+    Node* rear_node;
+    int count;
 
 public:
+    Queue();
+
     void push(int value);
     void pop();
-    void print();
-    int front();
+    int front() const;
+    bool isEmpty() const;
+    void print() const;
 };
+
+#endif

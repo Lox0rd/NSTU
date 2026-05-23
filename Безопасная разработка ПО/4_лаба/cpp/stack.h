@@ -1,14 +1,22 @@
-#pragma once
-#include <vector>
 #include <iostream>
-
+#ifndef STACK_H
+#define STACK_H
 class Stack {
 private:
-    std::vector<int> data;
+    int* data;        
+    int capacity;     
+    int top;          
+
+    void resize();    
 
 public:
+    Stack();
+
     void push(int value);
     void pop();
-    void print();
     int peek();
+    void print();
+    bool isEmpty() const;
 };
+
+#endif
