@@ -3,15 +3,13 @@
 #include <ctype.h>
 #include <string.h>
 
-// Структура узла дерева
 typedef struct Node {
-    int is_constant;  // 1 — константа, 0 — операция
-    int value;        // значение константы или код операции
+    int is_constant;
+    int value;
     struct Node* left;
     struct Node* right;
 } Node;
 
-// Создание нового узла
 Node* create_node(int is_constant, int value) {
     Node* node = (Node*)malloc(sizeof(Node));
     if (node == NULL) {
@@ -25,7 +23,6 @@ Node* create_node(int is_constant, int value) {
     return node;
 }
 
-// Освобождение памяти дерева
 void free_tree(Node* root) {
     if (root != NULL) {
         free_tree(root->left);
@@ -34,7 +31,6 @@ void free_tree(Node* root) {
     }
 }
 
-// Поиск оператора с наименьшим приоритетом (кроме тех, что внутри скобок)
 int find_operator(const char* expr, int start, int end) {
     int balance = 0;
     int pos = -1;
@@ -45,24 +41,21 @@ int find_operator(const char* expr, int start, int end) {
 
         if (balance == 0) {
             if (expr[i] == '+' || expr[i] == '-') {
-                return i;  // + и - имеют наименьший приоритет
+                return i;
             } else if ((expr[i] == '*' || expr[i] == '/') && pos == -1) {
-                pos = i;  // * и / имеют более высокий приоритет
+                pos = i;
             }
         }
     }
     return pos;
 }
 
-// Построение дерева из выражения
 Node* build_tree(const char* expr, int start, int end) {
-    // Пропускаем пробелы
     while (start <= end && expr[start] == ' ') start++;
     while (end >= start && expr[end] == ' ') end--;
 
     if (start > end) return NULL;
 
-    // Если выражение в скобках, убираем внешние скобки
     if (expr[start] == '(' && expr[end] == ')') {
         int balance = 0;
         for (int i = start; i <= end; i++) {
@@ -77,11 +70,9 @@ Node* build_tree(const char* expr, int start, int end) {
         }
     }
 
-    // Ищем оператор с наименьшим приоритетом
     int op_pos = find_operator(expr, start, end);
 
     if (op_pos == -1) {
-        // Это константа
         int value = 0;
         for (int i = start; i <= end; i++) {
             if (isdigit(expr[i])) {
@@ -90,7 +81,6 @@ Node* build_tree(const char* expr, int start, int end) {
         }
         return create_node(1, value);
     } else {
-        // Создаём узел с операцией
         Node* node = create_node(0, expr[op_pos]);
         node->left = build_tree(expr, start, op_pos - 1);
         node->right = build_tree(expr, op_pos + 1, end);
@@ -98,7 +88,6 @@ Node* build_tree(const char* expr, int start, int end) {
     }
 }
 
-// Вычисление значения выражения по дереву
 int evaluate(Node* node) {
     if (node == NULL) return 0;
 
@@ -123,7 +112,6 @@ int evaluate(Node* node) {
     return 0;
 }
 
-// Обход дерева с выводом (с отступами для визуализации структуры)
 void print_tree(Node* node, int depth) {
     if (node == NULL) return;
 
@@ -140,7 +128,6 @@ void print_tree(Node* node, int depth) {
     print_tree(node->left, depth + 1);
 }
 
-// Интерактивное добавление узла
 Node* add_node_interactive() {
     printf("Добавить узел? (1 - да, 0 - нет): ");
     int choice;
@@ -172,15 +159,13 @@ Node* add_node_interactive() {
     return node;
 }
 
-// Главная функция
 int main() {
     char expression[100];
 
     printf("Введите арифметическое выражение: ");
     fgets(expression, sizeof(expression), stdin);
-    expression[strcspn(expression, "\n")] = 0;  // Убираем символ новой строки
+    expression[strcspn(expression, "\n")] = 0;
 
-    // Строим дерево из выражения
     Node* tree = build_tree(expression, 0, strlen(expression) - 1);
 
     printf("\nДерево выражения:\n");
@@ -188,8 +173,6 @@ int main() {
 
     printf("\nРезультат вычисления: %d\n", evaluate(tree));
 
-    // Интерактивное добавление вершины
-    printf("\nИнтерактивное добавление узла:\n");
     Node* new_node = add_node_interactive();
     if (new_node != NULL) {
         printf("\nНовое дерево:\n");

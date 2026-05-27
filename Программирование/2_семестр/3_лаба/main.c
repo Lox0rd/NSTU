@@ -5,36 +5,6 @@
 #define ND 10
 #define NOK 12252240  //НОК для финальной проверки
 
-
-
-// long long FindNok(long long a, long long b) {
-//     long long temp, gcd;
-//     long long orig_a = a, orig_b = b;
-//     while (b != 0) {
-//         temp = b;
-//         b = a % b;
-//         a = temp;
-//     }
-//     gcd = a;
-//     return (orig_a * orig_b) / gcd;
-// }
-
-
-// long long FindNok_in_range(long long start, long long end) {
-//     if (start > end) {
-//         long long temp = start;
-//         start = end;
-//         end = temp;
-//     }
-
-//     long long result = start;
-//     for (long long i = start + 1; i <= end; i++) {
-//         result = FindNok(result, i);
-//     }
-//     return result;
-// }
-
-
 long long Nok(long long x, long long y) {
     if (y == 0) {
         return x;

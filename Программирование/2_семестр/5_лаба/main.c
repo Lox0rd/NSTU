@@ -6,12 +6,10 @@ typedef struct CSpis {
     struct CSpis* next;
 } CSpis;
 
-// Типы указателей на функции
 typedef int (*CompareFunc)(int, int);
 typedef void (*PrintFunc)(int);
 typedef CSpis* (*CreateFunc)(int);
 
-// Базовая функция создания узла
 CSpis* createCSpis(int value) {
     CSpis* newCSpis = (CSpis*)malloc(sizeof(CSpis));
     if (!newCSpis) {
@@ -23,21 +21,19 @@ CSpis* createCSpis(int value) {
     return newCSpis;
 }
 
-// Универсальная функция вставки с возможностью кастомизации
 void insert(CSpis** last, int value, CreateFunc creator) {
     CSpis* newCSpis = creator(value);
 
     if (*last == NULL) {
-        newCSpis->next = newCSpis;  // единственный элемент указывает на себя
+        newCSpis->next = newCSpis;
         *last = newCSpis;
     } else {
-        newCSpis->next = (*last)->next;  // новый узел указывает на первый
-        (*last)->next = newCSpis;       // последний указывает на новый
-        *last = newCSpis;              // обновляем указатель на последний
+        newCSpis->next = (*last)->next;
+        (*last)->next = newCSpis;
+        *last = newCSpis;
     }
 }
 
-// Универсальная функция печати с возможностью кастомизации вывода
 void printList(CSpis* last, PrintFunc printer) {
     if (last == NULL) {
         printf("Список пуст\n");
@@ -53,16 +49,14 @@ void printList(CSpis* last, PrintFunc printer) {
     printf("\n");
 }
 
-// Функция сравнения для целых чисел
 int compareInt(int a, int b) {
     return a == b;
 }
 
-// Универсальная функция разности с использованием функции сравнения
 CSpis* difference(CSpis* lastA, CSpis* lastB, CompareFunc comparator) {
     if (lastA == NULL) return NULL;
 
-    CSpis* resultLast = NULL;  // указатель на последний элемент результата
+    CSpis* resultLast = NULL;
     CSpis* currentA = lastA->next;
 
     do {
@@ -88,9 +82,12 @@ CSpis* difference(CSpis* lastA, CSpis* lastB, CompareFunc comparator) {
     return resultLast;
 }
 
-// Кастомизированная функция печати
 void customPrint(int value) {
-    printf("[%d]", value);  // вывод в квадратных скобках
+    printf("[%d]", value);
+}
+
+void printInt(int value) {
+    printf("%d ", value);
 }
 
 int main() {
@@ -98,7 +95,6 @@ int main() {
     CSpis* listB = NULL;
     CSpis* diff = NULL;
 
-    // Используем указатель на функцию создания
     CreateFunc creator = createCSpis;
 
     insert(&listA, 1, creator);
@@ -110,8 +106,7 @@ int main() {
     insert(&listB, 4, creator);
     insert(&listB, 5, creator);
 
-    // Используем разные функции печати
-    PrintFunc defaultPrinter = printf;
+    PrintFunc defaultPrinter = printInt;
     PrintFunc customPrinter = customPrint;
 
     printf("Список A (стандартный вывод): ");
@@ -120,10 +115,7 @@ int main() {
     printf("Список B (кастомный вывод): ");
     printList(listB, customPrinter);
 
-    // Используем указатель на функцию сравнения
     CompareFunc comparator = compareInt;
-
-    // Вычисляем разность A - B
     diff = difference(listA, listB, comparator);
 
     printf("Разность A - B: ");

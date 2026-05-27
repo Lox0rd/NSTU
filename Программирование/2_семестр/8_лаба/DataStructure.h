@@ -73,7 +73,7 @@ public:
         return true;
     }
 
-    // Сортировка (требуется наличие оператора < для типа T)
+    // Сортировка
     void sort() {
         std::sort(data, data + size);
     }
@@ -116,7 +116,7 @@ public:
 
     // Сохранение в текстовый поток
     friend std::ostream& operator<<(std::ostream& os, const DataStructure<T>& ds) {
-        os << ds.size << "\n";  // Сначала сохраняем размер
+        os << ds.size << "\n";
         for (size_t i = 0; i < ds.size; ++i) {
             os << ds.data[i] << "\n";
         }
@@ -146,4 +146,4 @@ public:
     }
 };
 
-#endif // DATASTRUCTURE_H
+#endif
