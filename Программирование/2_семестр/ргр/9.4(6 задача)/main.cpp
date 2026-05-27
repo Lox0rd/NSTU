@@ -13,8 +13,7 @@ void rd(ifstream &f, vector<Str> &v) {
     string s;
     while (1) {
         long pos = f.tellg();
-        if (!getline(f, s))
-            break;
+        if (!getline(f, s)) break;
         Str t;
         t.p = pos;
         v.push_back(t);
@@ -60,8 +59,7 @@ int main() {
                             break;
                         }
                     }
-                    if (ok)
-                        break;
+                    if (ok) break;
                     cout << s2 << endl;
                     j++;
                 }
@@ -77,8 +75,7 @@ int main() {
                             break;
                         }
                     }
-                    if (ok)
-                        break;
+                    if (ok) break;
                     cout << s1 << endl;
                     i++;
                 }
