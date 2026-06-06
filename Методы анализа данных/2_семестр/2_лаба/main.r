@@ -30,62 +30,76 @@ library(rcompanion)
 library(psych)
 library(DescTools)
 
-# -----------------------------
+# =========================================================
+# ПАПКА ДЛЯ СОХРАНЕНИЯ ГРАФИКОВ
+# =========================================================
+
+plot_dir <- "plots"
+
+if(!dir.exists(plot_dir)){
+  dir.create(plot_dir)
+}
+
+# =========================================================
 # ЗАГРУЗКА ДАННЫХ
-# -----------------------------
+# =========================================================
 
-# Указать путь к CSV
-df <- read.csv("variant15.csv", stringsAsFactors = TRUE)
+df <- read.csv(
+  "var_15.csv",
+  sep = ";",
+  header = TRUE,
+  stringsAsFactors = TRUE
+)
 
-# Просмотр структуры
+# Удаление первого столбца
+df <- df[, -1]
+
+# =========================================================
+# ПРОСМОТР ДАННЫХ
+# =========================================================
+
 str(df)
-
-# Первые строки
 head(df)
-
-# Размерность
 dim(df)
-
-# Общая статистика
 summary(df)
 
 # Проверка пропусков
 colSums(is.na(df))
 
-# -----------------------------
+# =========================================================
 # ПЕРЕИМЕНОВАНИЕ СТОЛБЦОВ
-# -----------------------------
+# =========================================================
 
 colnames(df) <- c(
   "Group",
   "Gender",
   "Age",
-  "WorkExperience",
   "AverageIncome",
+  "WorkExperience",
   "ProfessionalSpecialization",
   "AveragePages",
   "ActivityScore",
   "ActivityLevel"
 )
 
-# -----------------------------
+# =========================================================
 # ПРЕОБРАЗОВАНИЕ ТИПОВ
-# -----------------------------
+# =========================================================
 
 df$Group <- as.factor(df$Group)
 df$Gender <- as.factor(df$Gender)
 df$ActivityLevel <- as.factor(df$ActivityLevel)
 
-# -----------------------------
+# =========================================================
 # РАЗДЕЛЕНИЕ НА ГРУППЫ
-# -----------------------------
+# =========================================================
 
 g1 <- df %>% filter(Group == levels(df$Group)[1])
 g2 <- df %>% filter(Group == levels(df$Group)[2])
 
-# -----------------------------
+# =========================================================
 # КОЛИЧЕСТВЕННЫЕ ПРИЗНАКИ
-# -----------------------------
+# =========================================================
 
 num_cols <- c(
   "Age",
@@ -100,27 +114,23 @@ num_cols <- c(
 # 1. ПРОВЕРКА НОРМАЛЬНОСТИ
 # =========================================================
 
-# -----------------------------
-# ФУНКЦИЯ ПРОВЕРКИ НОРМАЛЬНОСТИ
-# -----------------------------
-
 norm_tests <- function(data, var_name) {
-
+  
   x <- data[[var_name]]
-
+  
   cat("\n====================================\n")
   cat("ПРИЗНАК:", var_name, "\n")
   cat("====================================\n")
-
+  
   # Шапиро-Уилк
   print(shapiro.test(x))
-
+  
   # Крамер-Мизес
   print(cvm.test(x))
-
+  
   # Андерсон-Дарлинг
   print(ad.test(x))
-
+  
   # Хи-квадрат
   print(DescTools::GTest(table(cut(x, breaks = 6))))
 }
@@ -150,8 +160,8 @@ for(v in num_cols){
 # =========================================================
 
 for(v in num_cols){
-
-  ggplot(df, aes_string(x = v)) +
+  
+  p <- ggplot(df, aes_string(x = v)) +
     geom_histogram(
       aes(y = ..density..),
       bins = 10,
@@ -169,9 +179,16 @@ for(v in num_cols){
     ) +
     facet_wrap(~Group) +
     ggtitle(paste("Гистограмма:", v)) +
-    theme_minimal() -> p
-
+    theme_minimal()
+  
   print(p)
+  
+  ggsave(
+    filename = paste0(plot_dir, "/", v, "_hist.png"),
+    plot = p,
+    width = 8,
+    height = 5
+  )
 }
 
 # =========================================================
@@ -202,29 +219,30 @@ exp_freq <- length(x) * p
 # χ²
 chi_sq <- sum((obs - exp_freq)^2 / exp_freq)
 
-chi_sq
+cat("\nРучной χ² =", chi_sq, "\n")
 
 # =========================================================
-# РУЧНОЙ РАСЧЁТ КРАМЕРА-МЕЗЕСА
+# РУЧНОЙ РАСЧЁТ КРАМЕРА-МИЗЕСА
 # =========================================================
 
 x_sort <- sort(x)
 
 n <- length(x_sort)
 
-f0 <- pnorm(x_sort, mean = mean(x_sort), sd = sd(x_sort))
+f0 <- pnorm(
+  x_sort,
+  mean = mean(x_sort),
+  sd = sd(x_sort)
+)
 
-w2 <- 1/(12*n) + sum((f0 - (2*(1:n)-1)/(2*n))^2)
+w2 <- 1/(12*n) +
+  sum((f0 - (2*(1:n)-1)/(2*n))^2)
 
-w2
+cat("\nРучной Cramer-von Mises =", w2, "\n")
 
 # =========================================================
 # 2. КОРРЕЛЯЦИОННЫЙ АНАЛИЗ
 # =========================================================
-
-# -----------------------------
-# КОРРЕЛЯЦИОННЫЕ МАТРИЦЫ
-# -----------------------------
 
 g1_num <- g1[, num_cols]
 g2_num <- g2[, num_cols]
@@ -252,8 +270,15 @@ cor_g1_kend
 cor_g2_kend
 
 # =========================================================
-# ТЕПЛОВАЯ КАРТА
+# ТЕПЛОВАЯ КАРТА ГРУППА 1
 # =========================================================
+
+png(
+  paste0(plot_dir, "/corrplot_group1.png"),
+  width = 1200,
+  height = 1200,
+  res = 150
+)
 
 corrplot(
   cor_g1_pearson,
@@ -263,6 +288,19 @@ corrplot(
   addCoef.col = "black"
 )
 
+dev.off()
+
+# =========================================================
+# ТЕПЛОВАЯ КАРТА ГРУППА 2
+# =========================================================
+
+png(
+  paste0(plot_dir, "/corrplot_group2.png"),
+  width = 1200,
+  height = 1200,
+  res = 150
+)
+
 corrplot(
   cor_g2_pearson,
   method = "color",
@@ -270,6 +308,8 @@ corrplot(
   tl.col = "black",
   addCoef.col = "black"
 )
+
+dev.off()
 
 # =========================================================
 # РУЧНОЙ РАСЧЁТ ПИРСОНА
@@ -284,7 +324,7 @@ my <- mean(y)
 r <- sum((x - mx)*(y - my)) /
   sqrt(sum((x - mx)^2) * sum((y - my)^2))
 
-r
+cat("\nРучной Пирсон =", r, "\n")
 
 # =========================================================
 # РУЧНОЙ РАСЧЁТ СПИРМЕНА
@@ -299,7 +339,7 @@ n <- length(x)
 
 rs <- 1 - (6*d2)/(n*(n^2 - 1))
 
-rs
+cat("\nРучной Спирмен =", rs, "\n")
 
 # =========================================================
 # ПРОВЕРКА ЗНАЧИМОСТИ ПИРСОНА
@@ -319,7 +359,7 @@ n <- nrow(g1)
 
 t_stat <- r * sqrt((n - 2)/(1 - r^2))
 
-t_stat
+cat("\nРучной t =", t_stat, "\n")
 
 # =========================================================
 # ЧАСТНЫЕ КОРРЕЛЯЦИИ
@@ -385,7 +425,7 @@ ms_within <- ss_within / (n - k)
 
 f_value <- ms_between / ms_within
 
-f_value
+cat("\nРучной F =", f_value, "\n")
 
 # =========================================================
 # 4. ТАБЛИЦЫ СОПРЯЖЁННОСТИ
@@ -416,13 +456,13 @@ exp <- outer(row_sum, col_sum) / n
 
 chi_manual <- sum((obs - exp)^2 / exp)
 
-chi_manual
+cat("\nРучной χ² =", chi_manual, "\n")
 
 # =========================================================
 # 5. МАТРИЧНЫЙ ГРАФИК GGPairs
 # =========================================================
 
-ggpairs(
+p_pairs <- ggpairs(
   df,
   columns = c(
     "Age",
@@ -432,6 +472,15 @@ ggpairs(
     "ActivityScore"
   ),
   aes(color = Group, alpha = 0.5)
+)
+
+print(p_pairs)
+
+ggsave(
+  paste0(plot_dir, "/ggpairs.png"),
+  plot = p_pairs,
+  width = 14,
+  height = 12
 )
 
 # =========================================================
@@ -447,31 +496,53 @@ describeBy(
 # BOXPLOT
 # =========================================================
 
-ggplot(df,
-       aes(
-         x = ActivityLevel,
-         y = AverageIncome,
-         fill = ActivityLevel
-       )) +
+p_box <- ggplot(
+  df,
+  aes(
+    x = ActivityLevel,
+    y = AverageIncome,
+    fill = ActivityLevel
+  )
+) +
   geom_boxplot() +
   theme_minimal()
+
+print(p_box)
+
+ggsave(
+  paste0(plot_dir, "/boxplot_income.png"),
+  plot = p_box,
+  width = 8,
+  height = 5
+)
 
 # =========================================================
 # SCATTERPLOT
 # =========================================================
 
-ggplot(df,
-       aes(
-         x = Age,
-         y = AverageIncome,
-         color = Group
-       )) +
+p_scatter <- ggplot(
+  df,
+  aes(
+    x = Age,
+    y = AverageIncome,
+    color = Group
+  )
+) +
   geom_point(size = 3) +
   geom_smooth(method = "lm", se = FALSE) +
   theme_minimal()
 
+print(p_scatter)
+
+ggsave(
+  paste0(plot_dir, "/scatter_age_income.png"),
+  plot = p_scatter,
+  width = 9,
+  height = 6
+)
+
 # =========================================================
-# СОХРАНЕНИЕ РЕЗУЛЬТАТОВ
+# СОХРАНЕНИЕ КОРРЕЛЯЦИЙ
 # =========================================================
 
 write.csv(
